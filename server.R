@@ -71,6 +71,10 @@ shinyServer(function(input, output) {
       "darkgreen",
       "darkmagenta"
       )
-    barplot(per.genus.table[[genusPlot]], col = myColors, xlab = "Number of Chromosomes", ylab = "Number of Records", main = message, legend.text = TRUE)
+    par(mfrow=c(1, 1), mar=c(5, 5, 5, 15) + 0.1)
+    barplot(per.genus.table[[genusPlot]], col = myColors, xlab = "Number of Chromosomes", ylab = "Number of Records", main = message, legend.text = TRUE,args.legend = list(
+      xjust = 0,
+      yjust = 1
+    ), xpd = TRUE )
   })
 })
