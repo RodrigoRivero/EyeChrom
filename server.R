@@ -1,6 +1,5 @@
 library("shiny")
-library("treeplyr") # Josef Uyeda's package, maybe useful for organizing better our dataset
-library("ape") #basic tree package
+library("ggplot2")
 
 # Loading data
 fern.dataset<-read.csv("fernccdbclean.csv") #partially clean chromosome number datasets
@@ -53,28 +52,21 @@ names(per.genus.counts)<-genus
 #--------------------------All below is connected to the UI-------------------#
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
-  output$distPlot <- renderPlot({
-    genusPlot <- as.numeric(input$var) #necessary change to make sure the variable passed is a number and not a string
-    message <- paste("Chromosome Data For", genus[genusPlot])
-    myColors<- c(
-      "antiquewhite", 
-      "aquamarine", 
-      "blue", 
-      "brown", 
-      "blueviolet", 
-      "burlywood",
-      "cadetblue",
-      "chartreuse",
-      "chocolate",
-      "cyan",
-      "darkgoldenrod",
-      "darkgreen",
-      "darkmagenta"
-      )
-    par(mfrow=c(1, 1), mar=c(5, 5, 5, 15) + 0.1)
-    barplot(per.genus.table[[genusPlot]], col = myColors, xlab = "Number of Chromosomes", ylab = "Number of Records", main = message, legend.text = TRUE,args.legend = list(
-      xjust = 0,
-      yjust = 1
-    ), xpd = TRUE )
-  })
+  output$distPlot <- renderPlot({ # This create the output plot to be sent to the UI
+    genusPlot <- as.numeric(input$var) #necessary change to make sure the variable passed is a number and not a string. Here the input$var is coming from the UI
+    myTitle <- paste("Chromosome Data For", genus[genusPlot]) # title name generated dinamically with the choice of the user
+    subset <- as.data.frame(per.genus.table[[genusPlot]]) # ggplot needs a data frame to work
+    colnames(subset) <- c("species", "chromosome", "freq") # proper names
+    subset$species <- gsub("_", " ", subset$species) # names have an underscore so I got rid of it to make it look nicer
+    
+    ## Plotting 
+    ggplot(data = subset, aes(x = chromosome, y = freq, fill = species)) + #fill species indicates it will be a stacker bar graph, as well as handling different colors
+      geom_bar(stat="identity") + 
+      labs(title = myTitle, 
+           y = "Number Of Records", 
+           x = "Chromosome Number", 
+           fill = "Species Name")+ # data for the axis and legend
+      scale_fill_hue(l=60)+ # color adjustment
+      theme(plot.title = element_text(hjust = 0.5, vjust = 0), legend.position = "bottom") # centering title
+  }, height = 1000)
 })
