@@ -2,59 +2,6 @@ library("shiny")
 library("ggplot2")
 library("stringr")
 
-# Loading data
-#dataset.loaded<-read.csv("fernccdbclean.csv") #partially clean chromosome number datasets
-#haploid.number<-rep(0,11993) # This is the number of entries in this dirty dataset, it is larger in the full
-load("angiorecordsclean2018.RData")
-dataset.loaded<-angiorecordsclean2018
-# # This for loop calculates the haploid number based on whether there is an actual record of gametophytic number, but if absent haploid2 has sporophytic divided by 2 
-# for (i in 1:11993){
-#   if(!is.na(dataset.loaded$haploid1[i])==TRUE){
-#     haploid.number[i]<-dataset.loaded$haploid1[i]}else{
-#       if(!is.na(dataset.loaded$haploid2[i])==TRUE)
-#         haploid.number[i]<-dataset.loaded$haploid2[i]else{
-#           haploid.number[i]<-NA
-#         }}}
-# 
-# #Building a dataset with the haploid number
-# dataset.loaded<-cbind(dataset.loaded,haploid.number)
-# taxa<-unique(dataset.loaded[,1]) #3353 is the total of different taxa
-# smallest<-rep(0,3353)
-# 
-# #This for loop looks into which is the smallest haploid number observed for each taxon. This is useful just to match with the phylogeny
-# for(i in 1:3353){
-#   aux<-which(dataset.loaded[,1]==taxa[i])
-#   aux2<-min(dataset.loaded$haploid.number[aux])
-#   smallest[i]<-aux2
-# }
-
-#Building a small data set to match with the phylogeny
-smallest.dataset<-data.frame(taxa,smallest)
-
-# 
-# #Remove NAs
-# aux3<-which(!is.na(smallest.dataset$smallest))
-# smallest.dataset<-smallest.dataset[aux3,]#3041
-
-#Create individual genus
-#genus<-unique(dataset.loaded$genus)#362
-genus<-unique(dataset.loaded$Genus)
-removing.na<-which(is.na(genus)==TRUE)
-genus=genus[-removing.na]
-long1<-length(genus)
-# I'm making 2 lists one that helped building the tables and the histograms with information
-per.genus.counts<-list()
-per.genus.table<-list() #293
-
-for(j in 1:long1){
-  print(j)
-  aux4<-which(dataset.loaded$Genus==genus[j])
-  per.genus.counts[[j]]<-data.frame(species=as.character(dataset.loaded$Species[aux4]), haploid.number=dataset.loaded$HaploidNumber[aux4])
-  per.genus.table[[j]]<-table(paste(genus[j],per.genus.counts[[j]]$species,sep="_"), per.genus.counts[[j]]$haploid.number)
-}
-names(per.genus.counts)<-genus
-
-
 # Function that takes in one original array of strings and an array of string to remove from the original one
 stringRemover <- function(originalArray, arrayOfStringsToRemove){
   toRemove <- vector()
@@ -78,8 +25,6 @@ putTheColumnNames <- function(dataFrame){
   newFrame$species <- gsub("_", " ", newFrame$species) # fixing names to remove the underscor in names
   return(newFrame)
 }
-
-#--------------------------All above is backend stuff-------------------------#
 #--------------------------All below is connected to the UI-------------------#
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
