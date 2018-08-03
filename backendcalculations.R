@@ -38,7 +38,7 @@ ferngametophyticlist$Antigramma
 ### Here is the code to reproduce building the tables we don't need to touch it right now
 ######################
 # # Loading data
-# #fernrecordsclean2016 <- read.delim2("~/Dropbox/EyeChrom/cleanpteridophyterecords.txt", stringsAsFactors=FALSE) #partially clean chromosome number datasets
+#fernrecordsclean2016 <- read.delim2("~/Dropbox/CCDBcuratorexample/cleanpteridophyterecords.txt", stringsAsFactors=FALSE) #partially clean chromosome number datasets
 # save(fernrecordsclean2016, file="fernrecordsclean2016.RData")
 #load("angiorecordsclean2018.RData")
 #load("fernrecordsclean2016.RData")
@@ -48,7 +48,7 @@ ferngametophyticlist$Antigramma
 # ##Fern Database is still in old format. Updates will come soon
 #numberfernrecords<-dim(fernrecordsclean2016)[1] #25246 that were translated
 #numberangiorecords<-dim(angiorecordsclean2018)[1] #410435 that were translated
-#
+
 # csome.number<-rep(0,numberfernrecords)
 # for (i in 1:numberfernrecords){
 #    if(is.na(fernrecordsclean2016$CountTranslation[i])==TRUE){
@@ -58,7 +58,7 @@ ferngametophyticlist$Antigramma
 #            csome.number[i]<-2*(fernrecordsclean2016$CountTranslation[i])
 #          }}}
 # 
-#fernrecordsclean2016<-cbind(fernrecordsclean2016,csome.number)
+# fernrecordsclean2016<-cbind(fernrecordsclean2016,csome.number)
 # save(fernrecordsclean2016, file="fernrecordsclean2016.RData")
 #
 #csome.number<-rep(0,numberangiorecords)
@@ -156,10 +156,10 @@ ferngametophyticlist$Antigramma
 
 #
 # ############## Gametophytic tables for angiosperms
-gametophytic<-which(angiorecordsclean2018$Type=="gametophytic")
-gametophytic.counts<-angiorecordsclean2018[gametophytic,]
-per.genus.counts<-list()
-per.genus.table<-list()
+# gametophytic<-which(angiorecordsclean2018$Type=="gametophytic")
+# gametophytic.counts<-angiorecordsclean2018[gametophytic,]
+# per.genus.counts<-list()
+# per.genus.table<-list()
 #Chromosome Numbers tables for ferns
 # for(j in 1:long1){
 #   print(j)
@@ -199,6 +199,7 @@ per.genus.table<-list()
 
 # #########Data tables ferns
 # genus<-unique(fernrecordsclean2016$Genus)
+# genus<-sort(genus)
 # long1<-length(genus)
 # per.genus.data<-list()
 # for(j in 1:long1){
@@ -214,6 +215,7 @@ per.genus.table<-list()
 
 # #########Data tables angiosperms
 # genus<-unique(angiorecordsclean2018$Genus)
+# genus<-sort(genus)
 # long1<-length(genus)
 # per.genus.data<-list()
 # for(j in 1:long1){
