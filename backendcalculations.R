@@ -1,10 +1,16 @@
 # Rodrigo: Here are the RData objects we need to process queries
 #1. Angiosperm chromosome number tables by genus
 load("angiocsomelist.RData")
+#1.1 Angiosperm chromosome number full table by genus
+load("angiocsomefulltable.RData")
 #2. Angiosperm gametophytic number tables by genus  (some are empty or have NA)
 load("angiogametophyticlist.RData")
+#2.2 Angiosperm gametophytic number full table by genus
+load("angiogametophyticfulltable.Rdata")
 #3. Angiosperm sporophytic number tables by genus  (some are empty or have NA)
 load("angiosporophyticlist.RData")
+#3.3 Angiosperm sporphytic full table by genus
+load("angiosporophyticfulltable.Rdata")
 #4. Fern chromosome number tables by genus  
 load("ferncsomelist.RData")
 #5. Fern gametophytic number tables by genus  (some are empty or have NA)
@@ -36,12 +42,30 @@ ferngametophyticlist$Antigramma
 # ####################
 ######################
 ### Here is the code to reproduce building the tables we don't need to touch it right now
-######################
-# # Loading data
+####################### # Loading data
+angioccdb<-read.table(file="~/Dropbox/CCDBcuratorexample/ccdbAngiospermsOct2018.txt",as.is=TRUE,header=TRUE,sep="$", comment.char="&")
+head(angioccdb)
+
+sort3.df <- with(angioccdb, angioccdb[order(angioccdb$Genus, angioccdb$Species) , ]) # Organized alphabetically
+sort3.df<- sort3.df[-seq(1,11,1),] #Removed some weird records at the beginnning
+angioccdb<-sort3.df
+save(angioccdb, file="data/angiospermsCCDBOct2018.RData")
+  csome.number<-rep(0,dim(angioccdb)[1])
+  sporophytic<-which(angioccdb$Type=="sporophytic")
+  gametophytic<-which(angioccdb$Type=="gametophytic")
+  csome.number[sporophytic]<-angioccdb$CountTranslation[sporophytic]
+  csome.number[gametophytic]<-angioccdb$CountTranslation[gametophytic]*2
+  angioccdb<-cbind(angioccdb,csome.number)
+  angiorecordsclean2018<-angioccdb
+  save(angiorecordsclean2018, file="data/angiorecordsclean2018.RData")  
+  
+
 #fernrecordsclean2016 <- read.delim2("~/Dropbox/CCDBcuratorexample/cleanpteridophyterecords.txt", stringsAsFactors=FALSE) #partially clean chromosome number datasets
 # save(fernrecordsclean2016, file="fernrecordsclean2016.RData")
 #load("angiorecordsclean2018.RData")
 #load("fernrecordsclean2016.RData")
+
+
 
 ########## We don't need to process this part again at all.
 # # # This for loop calculates the chormosome number number based on whether there is an actual record of gametophytic number, but if absent haploid2 has sporophytic divided by 2
@@ -134,69 +158,74 @@ ferngametophyticlist$Antigramma
 
 
 # #Chromosome number tables for angiosperms
-
-# genus<-unique(angiorecordsclean2018$Genus)
-# genus<-sort(genus)
-# long1<- length(genus) #7904
+load("data/angiorecordsclean2018.RData")
+genus<-unique(angiorecordsclean2018$Genus)
+genus<-sort(genus)
+long1<- length(genus) #7896
 # # I'm making 2 lists one that helped building the tables and the histograms with information
-# per.genus.counts<-list()
-# per.genus.table<-list()
+ per.genus.counts<-list()
+ per.genus.table<-list()
 # 
 # 
-# for(j in 1:long1){
-#   print(j)
-#   aux4<-which(angiorecordsclean2018$Genus==genus[j])
-#   per.genus.counts[[j]]<-data.frame(species=as.character(angiorecordsclean2018$Species[aux4]), csome.number=angiorecordsclean2018$csome.number[aux4])
-#   per.genus.table[[j]]<-table(paste(genus[j],per.genus.counts[[j]]$species,sep="_"), per.genus.counts[[j]]$csome.number)
-# }
-# names(per.genus.counts)<-genus
-# names(per.genus.table)<-genus
-# angiocsomelist<-per.genus.table
-# save(angiocsomelist,file="angiocsomelist.Rdata")
+for(j in 1:long1){
+    print(j)
+    aux4<-which(angiorecordsclean2018$Genus==genus[j])
+    per.genus.counts[[j]]<-data.frame(species=as.character(angiorecordsclean2018$Species[aux4]), csome.number=angiorecordsclean2018$csome.number[aux4],count.translation=angiorecordsclean2018$CountTranslation[aux4],count.original=angiorecordsclean2018$CountOriginal[aux4],type=angiorecordsclean2018$Type[aux4])
+    per.genus.table[[j]]<-table(paste(genus[j],per.genus.counts[[j]]$species,sep="_"), per.genus.counts[[j]]$csome.number)
+ }
+ names(per.genus.counts)<-genus
+ names(per.genus.table)<-genus
+ angiocsomelist<-per.genus.table
+ save(angiocsomelist,file="data/angiocsomelist.Rdata")
+ angiocsomefulltable<- per.genus.counts 
+ save(angiocsomefulltable,file="data/angiocsomefulltable.Rdata")
+ 
 
-#
-# ############## Gametophytic tables for angiosperms
-# gametophytic<-which(angiorecordsclean2018$Type=="gametophytic")
-# gametophytic.counts<-angiorecordsclean2018[gametophytic,]
-# per.genus.counts<-list()
-# per.genus.table<-list()
-#Chromosome Numbers tables for ferns
-# for(j in 1:long1){
-#   print(j)
-#   aux4<-which(gametophytic.counts$Genus==genus[j])
-#   if(length(aux4)>0){
-#   per.genus.counts[[j]]<-data.frame(species=as.character(gametophytic.counts$Species[aux4]), csome.number=gametophytic.counts$csome.number[aux4])
-#   per.genus.table[[j]]<-table(paste(genus[j],per.genus.counts[[j]]$species,sep="_"), per.genus.counts[[j]]$csome.number)
-#   }else{
-#   per.genus.counts[[j]]=NA
-#   per.genus.table[[j]]=NA
-# }}
-# names(per.genus.counts)<-genus
-# names(per.genus.table)<-genus
-# angiogametophyticlist<-per.genus.table
-# save(angiogametophyticlist,file="angiogametophyticlist.Rdata")
+ ############## Gametophytic tables for angiosperms
+ gametophytic<-which(angiorecordsclean2018$Type=="gametophytic")
+ gametophytic.counts<-angiorecordsclean2018[gametophytic,]
+ per.genus.counts<-list()
+ per.genus.table<-list()
+
+ for(j in 1:long1){
+   print(j)
+   aux4<-which(gametophytic.counts$Genus==genus[j])
+   if(length(aux4)>0){
+   per.genus.counts[[j]]<-data.frame(species=as.character(gametophytic.counts$Species[aux4]), csome.number=gametophytic.counts$csome.number[aux4],count.translation=gametophytic.counts$CountTranslation[aux4],count.original=gametophytic.counts$CountOriginal[aux4],type=gametophytic.counts$Type[aux4])
+   per.genus.table[[j]]<-table(paste(genus[j],per.genus.counts[[j]]$species,sep="_"), per.genus.counts[[j]]$csome.number)
+   }else{
+   per.genus.counts[[j]]=NA
+   per.genus.table[[j]]=NA
+ }}
+ names(per.genus.counts)<-genus
+ names(per.genus.table)<-genus
+ angiogametophyticlist<-per.genus.table
+ save(angiogametophyticlist,file="data/angiogametophyticlist.Rdata")
+ angiogametophyticfulltable<-per.genus.table
+ save(angiogametophyticfulltable, file="data/angiogametophyticfulltable.Rdata")
 
 # ############ Sporophytic tables for angiosperms
-# sporophytic<-which(angiorecordsclean2018$Type=="sporophytic")
-# sporophytic.counts<-angiorecordsclean2018[sporophytic,]
-# per.genus.counts<-list()
-# per.genus.table<-list() #363
-# #Chromosome Numbers tables for ferns
-# for(j in 1:long1){
-#   print(j)
-#   aux4<-which(sporophytic.counts$Genus==genus[j])
-#   if(length(aux4)>0){
-#   per.genus.counts[[j]]<-data.frame(species=as.character(sporophytic.counts$Species[aux4]), csome.number=sporophytic.counts$csome.number[aux4])
-#   per.genus.table[[j]]<-table(paste(genus[j],per.genus.counts[[j]]$species,sep="_"), per.genus.counts[[j]]$csome.number)
-#   }else{
-#     per.genus.counts[[j]]=NA
-#     per.genus.table[[j]]=NA
-# }}
-# names(per.genus.counts)<-genus
-# names(per.genus.table)<-genus
-# angiosporophyticlist<-per.genus.table
-# save(angiosporophyticlist,file="angiosporophyticlist.Rdata")
-
+ sporophytic<-which(angiorecordsclean2018$Type=="sporophytic")
+ sporophytic.counts<-angiorecordsclean2018[sporophytic,]
+ per.genus.counts<-list()
+ per.genus.table<-list() #363
+ 
+ for(j in 1:long1){
+   print(j)
+   aux4<-which(sporophytic.counts$Genus==genus[j])
+   if(length(aux4)>0){
+   per.genus.counts[[j]]<-data.frame(species=as.character(sporophytic.counts$Species[aux4]), csome.number=sporophytic.counts$csome.number[aux4],count.translation=sporophytic.counts$CountTranslation[aux4],count.original=sporophytic.counts$CountOriginal[aux4],type=sporophytic.counts$Type[aux4])
+   per.genus.table[[j]]<-table(paste(genus[j],per.genus.counts[[j]]$species,sep="_"), per.genus.counts[[j]]$csome.number)
+   }else{
+     per.genus.counts[[j]]=NA
+    per.genus.table[[j]]=NA
+ }}
+ names(per.genus.counts)<-genus
+ names(per.genus.table)<-genus
+ angiosporophyticlist<-per.genus.table
+ save(angiosporophyticlist,file="data/angiosporophyticlist.Rdata")
+ angiosporophyticfulltable<-per.genus.counts
+ save(angiosporophyticfulltable,file="data/angiosporophyticfulltable.Rdata")
 # #########Data tables ferns
 # genus<-unique(fernrecordsclean2016$Genus)
 # genus<-sort(genus)
