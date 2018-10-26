@@ -219,7 +219,7 @@ heatmapFrame <- function(dataFrame){
   for (v in 1:nrow(dataFrame)){
     thisSpeciesName <- dataFrame$species[v]
     speciesTotal <- sum(dataFrame[dataFrame$species == thisSpeciesName,3])
-    newSpeciesCountText <- paste(" (n = ", as.character(speciesTotal), sep = "")
+    newSpeciesCountText <- paste(" (no. records= ", as.character(speciesTotal), sep = "")
     newSpeciesCountText <- paste(newSpeciesCountText, ")", sep = "")
     newNames <- c(newNames,paste(dataFrame$species[v], newSpeciesCountText, sep = ""))
   }
