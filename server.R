@@ -83,10 +83,17 @@ putTheColumnNamesForTable <- function(dataFrame){
   return(newFrame)
 }
 
-tableNames <- function(dataFrame){
+tableNames <- function(dataFrame, genusName){
   newFrame <- dataFrame
   colnames(newFrame) <-  c("Species", "Chromosome Number", "Translated Count", "Original Count", "Type")
   newFrame <- arrange(newFrame, newFrame$Species)
+  i <- sapply(newFrame, is.factor)
+  newFrame[i] <- lapply(newFrame[i], as.character)
+  newNames <- vector()
+  for (i in 1:nrow(newFrame)){
+    newNames[i] <- paste(genusName,newFrame$Species[i], sep = " ")
+  }
+  newFrame$Species <- as.factor(newNames)
   return(newFrame)
 }
 
@@ -271,7 +278,7 @@ shinyServer(function(input, output) {
   
   # UI to pick different chromosome types
   output$cSelect <-  renderUI({
-    selectInput ("chromosome", label = h3("Chromosome"), choices = list("Gametophyte (n)" = "g","Sporophyte (2n)" = "s" , "Chromosome (2n)" = "c"), selected = "g")
+    selectInput ("chromosome", label = h3("Chromosome"), choices = list("Gametophyte (n)" = "g","Sporophyte (2n)" = "s" , "Combined (2n)" = "c"), selected = "g")
   })
   
   # UI To select Genus
@@ -358,6 +365,7 @@ shinyServer(function(input, output) {
   
   # Creating table
   output$table <- renderTable({
-    tableNames(as.data.frame(correctGenusForTable(paste(input$group,input$chromosome, sep = ""),as.numeric(input$var))))
+    genusName <- GenusName()
+    tableNames(as.data.frame(correctGenusForTable(paste(input$group,input$chromosome, sep = ""),as.numeric(input$var))), genusName)
   })
 })
